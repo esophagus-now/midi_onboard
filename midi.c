@@ -544,7 +544,23 @@ int step_ticks(MIDI *m, int ticks) {
 		}
 	}
 	
-	//TODO: reorder event queue so NOTE_OFF events happen first
+	int l = 0;
+	int r = m->num_ev - 1;
+	
+	while (l < r) {
+		//Scan l forward until we hit something which is not NOTE_OFF
+		while(m->events[l].type == NOTE_OFF && l < r) l++;
+		
+		//Scan r backward until we hit something which is a NOTE_OFF
+		while(m->events[r].type != NOTE_OFF && r > l) r--;
+		
+		//Swap l and r
+		MIDI_ev tmp = m->events[r];
+		m->events[r] = m->events[l];
+		m->events[l] = tmp;
+		r--;
+		l++;
+	}
 	return finished;
 }
 
